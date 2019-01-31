@@ -10,7 +10,7 @@ class UserController extends AbstractController
     /**
      * @return Response
      */
-    public function login() : Response
+    public function profile() : Response
     {
         $user        = $this->getUser();
         $userManager = $this->container->get('userManager');

@@ -9,3 +9,11 @@ index:
 app_login:
     path: /login
     controller: App\Controller\SecurityController:login
+
+admin_index:
+    path: /admin
+    controller: App\Controller\Admin\DashboardController:index
+
+user_profile:
+    path: /profile/{userId}
+    controller: App\Controller\UserController:profile

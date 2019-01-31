@@ -162,10 +162,7 @@ class User implements UserInterface
      */
     public function eraseCredentials() : self
     {
-        $this
-            ->setPassword()
-            ->setRoles()
-            ->setSalt();
+        //$this->setPassword();
 
         return $this;
     }

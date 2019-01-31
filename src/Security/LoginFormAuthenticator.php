@@ -17,9 +17,17 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
+    const ROLE_SUPER_ADMIN       = 'ROLE_SUPER_ADMIN';
+    const ROLE_ADMIN             = 'ROLE_ADMIN';
+    const ROLE_USER              = 'ROLE_USER';
+    const ROLE_ALLOWED_TO_SWITCH = 'ROLE_ALLOWED_TO_SWITCH';
+    const ROLE_PREVIOUS_ADMIN    = 'ROLE_PREVIOUS_ADMIN';
+    const ROLE_INVITED_USER      = 'ROLE_INVITED_USER';
+
     use TargetPathTrait;
 
     /**
@@ -38,6 +46,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $csrfTokenManager;
 
     /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $passwordEncoder;
+
+    /**
      * @param EntityManagerInterface    $entityManager
      * @param UrlGeneratorInterface     $urlGenerator
      * @param CsrfTokenManagerInterface $csrfTokenManager
@@ -45,11 +58,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function __construct(
         EntityManagerInterface $entityManager,
         UrlGeneratorInterface $urlGenerator,
-        CsrfTokenManagerInterface $csrfTokenManager
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder
     ) {
-        $this->entityManager = $entityManager;
-        $this->urlGenerator = $urlGenerator;
+        $this->entityManager    = $entityManager;
+        $this->urlGenerator     = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
+        $this->passwordEncoder  = $passwordEncoder;
     }
 
     /**
@@ -76,8 +91,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             'csrf_token' => $request->request->get('_csrf_token'),
         ];
 
-        $request->getSession()->set(Security::LAST_USERNAME, $credentials['email']
-        );
+        $request->getSession()->set(Security::LAST_USERNAME, $credentials['email']);
 
         return $credentials;
     }
@@ -109,17 +123,36 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         // Check the user's password or other credentials and return true or false
         // If there are no credentials to check, you can just return true
-        throw new \Exception('TODO: check the credentials inside '.__FILE__);
+        //throw new \Exception('TODO: check the credentials inside '.__FILE__);
+
+        if (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
+            throw new CustomUserMessageAuthenticationException('TODO: check the credentials inside '.__FILE__);
+        }
+
+        return true;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+/*        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
+        }*/
+
+        $role = $token->getRoles()[0]->getRole();
+
+        switch ($role) {
+            case self::ROLE_ADMIN:
+                $route = 'admin_index';
+                break;
+            case self::ROLE_USER:
+                $route = 'user_profile';
+                break;
         }
 
         // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+        //throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+
+        return new RedirectResponse($this->urlGenerator->generate($route ?? ''));
     }
 
     protected function getLoginUrl()

@@ -1,7 +1,18 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: ~ }
+        #in_memory: { memory: ~ }
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+    encoders:
+        # use your user class name here
+        App\Entity\User:
+        # bcrypt or argon2i are recommended
+        # argon2i is more secure, but requires PHP 7.2 or the Sodium extension
+            algorithm: bcrypt
+            cost:      15
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -11,6 +22,12 @@ security:
             guard:
                 authenticators:
                     - App\Security\LoginFormAuthenticator
+            access_denied_handler: App\Security\AccessDeniedHandler
+
+            logout:
+                path: /logout
+                target: /
+                invalidate_session: true
 
             # activate different ways to authenticate
 
@@ -23,5 +40,5 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+         - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/profile, roles: ROLE_USER }
