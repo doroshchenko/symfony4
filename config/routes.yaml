@@ -3,17 +3,21 @@
 #    controller: App\Controller\DefaultController::index
 
 index:
-    path: /user
-    controller: App\Controller\DefaultController::index
+    path: /
+    controller: App\Controller\IndexController::index
 
 app_login:
     path: /login
     controller: App\Controller\SecurityController:login
+
+app_logout:
+    path: /logout
+    controller: App\Controller\SecurityController:logout
 
 admin_index:
     path: /admin
     controller: App\Controller\Admin\DashboardController:index
 
 user_profile:
-    path: /profile/{userId}
+    path: /profile
     controller: App\Controller\UserController:profile

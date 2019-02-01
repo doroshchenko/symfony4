@@ -12,14 +12,14 @@ class UserController extends AbstractController
      */
     public function profile() : Response
     {
-        $user        = $this->getUser();
+  /*      $user        = $this->getUser();
         $userManager = $this->container->get('userManager');
 
         try {
             $userManager->login($user);
         } catch (\Exception $e) {
             $e->getMessage();
-        }
+        }*/
 
         return new Response(
             'this is response'

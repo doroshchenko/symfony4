@@ -15,14 +15,26 @@ class UserFixture extends Fixture
     {
         $admin = new User();
         $admin->setEmail('admin@mail.com')
+            ->setUsername('admin')
+            ->setSalt('salt')
             ->setPassword($this->passwordEncoder->encodePassword($admin, 'password'))
             ->setRoles(['ROLE_ADMIN']);
 
         $manager->persist($admin);
 
         $manager->flush($admin);
-    }
 
+        $user = new User();
+
+        $user->setEmail('user@mail.com')
+            ->setUsername('user')
+            ->setSalt('salt')
+            ->setPassword($this->passwordEncoder->encodePassword($user, 'password'))
+            ->setRoles(['ROLE_USER']);
+
+        $manager->persist($user);
+        $manager->flush($user);
+    }
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
