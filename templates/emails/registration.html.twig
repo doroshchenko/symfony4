@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+<p>Hello {{ userName }}</p>
+<p>To complete registration you need to proceed to the following <a href="{{ proceedLink }}"></a>url</p>
+</body>
+</html>

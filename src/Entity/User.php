@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,9 +11,12 @@ use Doctrine\ORM\Mapping as ORM;
  * @package App\Entity
  *
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
 class User implements UserInterface
 {
+    const ROLE_DEFAULT = 'ROLE_USER';
+
     /**
      * @var int
      *
@@ -41,7 +45,7 @@ class User implements UserInterface
      *
      * @ORM\Column(type="json")
      */
-    private $roles;
+    private $roles = [];
 
     /**
      * @var string
@@ -58,6 +62,21 @@ class User implements UserInterface
     private $salt;
 
     /**
+     * @var bool
+     */
+    private $enabled;
+
+    /**
+     * User constructor.
+     */
+    public function __construct()
+    {
+        if(!$this->roles) {
+            $this->roles[] = self::ROLE_DEFAULT;
+        }
+    }
+
+    /**
      * @param string $email
      *
      * @return $this
@@ -72,7 +91,7 @@ class User implements UserInterface
     /**
      * @return string
      */
-    public function getEmail() : string
+    public function getEmail() : ?string
     {
         return $this->email;
     }
@@ -98,13 +117,13 @@ class User implements UserInterface
     }
 
     /**
-     * @param array|null $roles
+     * @param null|string $role
      *
      * @return User
      */
-    public function setRoles(?array $roles = null) : self
+    public function addRole(?string $role = null) : self
     {
-        $this->roles = $roles;
+        $this->roles[] = $role;
 
         return $this;
     }
@@ -114,7 +133,11 @@ class User implements UserInterface
      */
     public function getRoles() : ?array
     {
-        return $this->roles;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
     /**
@@ -162,7 +185,7 @@ class User implements UserInterface
     /**
      * @return string
      */
-    public function getUsername() : string
+    public function getUsername() : ?string
     {
         return $this->username;
     }
@@ -173,6 +196,23 @@ class User implements UserInterface
     public function eraseCredentials() : self
     {
         //$this->setPassword();
+
+        return $this;
+    }
+
+    public function isEnabled() : bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     *
+     * @return User
+     */
+    public function setEnabled(bool $enabled) : self
+    {
+        $this->enabled = $enabled;
 
         return $this;
     }
