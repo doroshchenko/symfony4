@@ -10,6 +10,9 @@ use Symfony\Component\Templating\EngineInterface;
 
 class AccessDeniedHandler implements AccessDeniedHandlerInterface
 {
+    /**
+     * @var EngineInterface
+     */
     private $templating;
 
     public function __construct(EngineInterface $templating)
@@ -17,7 +20,12 @@ class AccessDeniedHandler implements AccessDeniedHandlerInterface
         $this->templating = $templating;
     }
 
-    public function handle(Request $request, AccessDeniedException $accessDeniedException)
+    /**
+     * @param Request $request
+     * @param AccessDeniedException $accessDeniedException
+     * @return Response
+     */
+    public function handle(Request $request, AccessDeniedException $accessDeniedException): Response
     {
         return new Response(
             $this->templating->render('security/accessDenied.html.twig', []),

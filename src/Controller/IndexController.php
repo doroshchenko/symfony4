@@ -8,6 +8,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class IndexController extends AbstractController
 {
+    const PAGE_ADMIN   = 'admin_index';
+    const PAGE_PROFILE = 'profile_index';
+
     /**
      * @return RedirectResponse
      */
@@ -16,9 +19,9 @@ class IndexController extends AbstractController
         $user = $this->getUser();
 
         if ($user->hasRole(LoginFormAuthenticator::ROLE_ADMIN)) {
-            $route = 'admin_index';
+            $route = self::PAGE_ADMIN;
         } elseif ($user->hasRole(LoginFormAuthenticator::ROLE_USER)) {
-            $route = 'user_profile';
+            $route = self::PAGE_PROFILE;
         }
 
         return $this->redirectToRoute($route ?? null);

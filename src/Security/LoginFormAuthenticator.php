@@ -25,6 +25,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     const ROLE_ADMIN             = 'ROLE_ADMIN';
     const ROLE_USER              = 'ROLE_USER';
 
+    /**
+     * @var array
+     */
     public static $userRoles = [
          self::ROLE_SUPER_ADMIN,
          self::ROLE_ADMIN,
@@ -88,10 +91,12 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
      */
     public function getCredentials(Request $request) : array
     {
+        $loginFormData = $request->request->get('login_form');
+
         $credentials = [
-            'email'      => $request->request->get('email'),
-            'password'   => $request->request->get('password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
+            'email'      => $loginFormData['email'],
+            'password'   => $loginFormData['password'],
+            'csrf_token' => $loginFormData['csrf_token'],
         ];
 
         $request->getSession()->set(Security::LAST_USERNAME, $credentials['email']);
@@ -108,6 +113,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider) : User
     {
         $token = new CsrfToken('authenticate', $credentials['csrf_token']);
+
         if (!$this->csrfTokenManager->isTokenValid($token)) {
             throw new InvalidCsrfTokenException();
         }
@@ -122,43 +128,37 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         return $user;
     }
 
-    public function checkCredentials($credentials, UserInterface $user)
+    /**
+     * @param mixed         $credentials
+     * @param UserInterface $user
+     *
+     * @return bool
+     */
+    public function checkCredentials($credentials, UserInterface $user): bool
     {
-        // Check the user's password or other credentials and return true or false
-        // If there are no credentials to check, you can just return true
-        //throw new \Exception('TODO: check the credentials inside '.__FILE__);
-
         if (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
-            throw new CustomUserMessageAuthenticationException('TODO: check the credentials inside '.__FILE__);
+            throw new CustomUserMessageAuthenticationException('Invalid password');
         }
 
         return true;
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    /**
+     * @param Request        $request
+     * @param TokenInterface $token
+     * @param string         $providerKey
+     *
+     * @return RedirectResponse
+     */
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey): RedirectResponse
     {
-/*        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
-            return new RedirectResponse($targetPath);
-        }*/
-
-        $role = $token->getRoles()[0]->getRole();
-
-        switch ($role) {
-            case self::ROLE_ADMIN:
-                $route = 'admin_index';
-                break;
-            case self::ROLE_USER:
-                $route = 'user_profile';
-                break;
-        }
-
-        // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        //throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
-
-        return new RedirectResponse($this->urlGenerator->generate($route ?? ''));
+        return new RedirectResponse($this->urlGenerator->generate('index'));
     }
 
-    protected function getLoginUrl()
+    /**
+     * @return string
+     */
+    protected function getLoginUrl(): string
     {
         return $this->urlGenerator->generate('app_login');
     }

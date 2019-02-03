@@ -8,11 +8,15 @@ index:
 
 app_login:
     path: /login
-    controller: App\Controller\SecurityController:login
+    controller: App\Controller\AuthController:login
 
 app_register:
     path: /register
-    controller: App\Controller\SecurityController:register
+    controller: App\Controller\AuthController:register
+
+app_activate_profile:
+    path: /activateProfile/{hash}
+    controller: App\Controller\AuthController:activateProfile
 
 app_logout:
     path: /logout
@@ -22,6 +26,6 @@ admin_index:
     path: /admin
     controller: App\Controller\Admin\DashboardController:index
 
-user_profile:
+profile_index:
     path: /profile
-    controller: App\Controller\UserController:profile
+    controller: App\Controller\Front\ProfileController:index

@@ -50,7 +50,7 @@ class User implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=120)
      */
     private $password;
 
@@ -71,9 +71,6 @@ class User implements UserInterface
      */
     public function __construct()
     {
-        if(!$this->roles) {
-            $this->roles[] = self::ROLE_DEFAULT;
-        }
     }
 
     /**
@@ -135,7 +132,9 @@ class User implements UserInterface
     {
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        if (!$roles) {
+            $roles[] = 'ROLE_USER';
+        }
 
         return array_unique($roles);
     }

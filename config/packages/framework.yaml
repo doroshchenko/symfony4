@@ -16,6 +16,8 @@ framework:
     php_errors:
         log: true
 
+    csrf_protection: { enabled: true }
+
     templating:
         enabled: true
         engines: ['twig']

@@ -18,7 +18,7 @@ class UserFixture extends Fixture
             ->setUsername('admin')
             ->setSalt('salt')
             ->setPassword($this->passwordEncoder->encodePassword($admin, 'password'))
-            ->addRole(['ROLE_ADMIN']);
+            ->addRole('ROLE_ADMIN');
 
         $manager->persist($admin);
 
@@ -30,7 +30,7 @@ class UserFixture extends Fixture
             ->setUsername('user')
             ->setSalt('salt')
             ->setPassword($this->passwordEncoder->encodePassword($user, 'password'))
-            ->addRole(['ROLE_USER']);
+            ->addRole('ROLE_USER');
 
         $manager->persist($user);
         $manager->flush($user);
