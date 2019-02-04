@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Entity\User;
+use App\Exception\UserIsNotEnabledException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -129,15 +130,21 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     }
 
     /**
-     * @param mixed         $credentials
+     * @param mixed $credentials
      * @param UserInterface $user
-     *
      * @return bool
+     * @throws UserIsNotEnabledException
      */
     public function checkCredentials($credentials, UserInterface $user): bool
     {
         if (!$this->passwordEncoder->isPasswordValid($user, $credentials['password'])) {
             throw new CustomUserMessageAuthenticationException('Invalid password');
+        }
+
+        if (!$user->isEnabled()) {
+            throw new CustomUserMessageAuthenticationException(
+                'You need to activate your account. Your confirmation email had already been sent.'
+            );
         }
 
         return true;

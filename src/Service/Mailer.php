@@ -41,7 +41,6 @@ class Mailer
 
     public function __construct(
         \Swift_Mailer $sender,
-        \Swift_Message $message,
         EngineInterface $templating,
         UrlGeneratorInterface $router,
         RequestStack $requestStack
@@ -50,15 +49,17 @@ class Mailer
         $this->templating   = $templating;
         $this->router       = $router;
         $this->requestStack = $requestStack;
-        $this->message      = $message;
+        $this->message      = new \Swift_Message();
         $this->message->setFrom(self::SEND_FROM);
     }
 
     public function send(User $to, string $type) : bool
     {
+        $message = new \Swift_Message();
+
         switch ($type) {
             case self::TYPE_ACTIVATE_ACCOUNT:
-                $this->setActivateAccountMessage($to);
+                $this->setActivateAccountMessage($to, $message);
                 break;
             default:
                 break;
@@ -73,10 +74,9 @@ class Mailer
     public function setActivateAccountMessage(User $to) : void
     {
         $proceedLink = $this->requestStack->getCurrentRequest()->getBaseUrl()
-            . $this->router->generate('app_activate_profile')
-            . '/' . urlencode(CommonHelper::encrypt($to->getEmail()));
+            . $this->router->generate('app_activate_profile', ['hash' => urlencode(CommonHelper::encrypt($to->getEmail()))]);
 
-        $body = $this->templating->renderView(
+        $body = $this->templating->render(
             'emails/registration.html.twig',
             [
                 'userName'    => $to->getUsername(),

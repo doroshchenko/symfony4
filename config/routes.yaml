@@ -15,7 +15,7 @@ app_register:
     controller: App\Controller\AuthController:register
 
 app_activate_profile:
-    path: /activateProfile/{hash}
+    path: /activateprofile/{hash}
     controller: App\Controller\AuthController:activateProfile
 
 app_logout:

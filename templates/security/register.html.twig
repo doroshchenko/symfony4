@@ -12,4 +12,8 @@
 
         <button class="btn">Register</button>
     {{ form_end(registrationForm) }}
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
 {% endblock %}

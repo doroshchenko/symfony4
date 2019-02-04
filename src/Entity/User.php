@@ -63,6 +63,8 @@ class User implements UserInterface
 
     /**
      * @var bool
+     *
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $enabled;
 

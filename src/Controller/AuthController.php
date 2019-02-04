@@ -6,6 +6,7 @@ use App\Exception\MailerException;
 use App\Form\LoginFormType;
 use App\Service\Mailer;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +50,7 @@ class AuthController extends AbstractController
         GuardAuthenticatorHandler $guardHandler,
         LoginFormAuthenticator $authenticator,
         Mailer $mailer,
-        EntityManager $em
+        EntityManagerInterface $em
     ): Response {
         try {
             $user = new User();
@@ -63,7 +64,8 @@ class AuthController extends AbstractController
                     ->setPassword($passwordEncoder->encodePassword($user, $form->get('plainPassword')->getData()));
 
                 if (!$mailer->send($user, Mailer::TYPE_ACTIVATE_ACCOUNT)) {
-                    throw new MailerException('Activate account email was not sen\'t for '. $user->getEmail());
+                    throw new MailerException('Activate account email was not sen\'t for '. $user->getEmail()
+                        . ' .Registration in failed');
                 }
 
                 $em->persist($user);
@@ -79,9 +81,6 @@ class AuthController extends AbstractController
         } catch (MailerException $mailerException) {
             $error = $mailerException->getMessage();
         } catch (\Exception $exception) {
-            if ($request->hasSession()) {
-                $request->getSession()->set(self::AUTH_ERROR, $exception);
-            }
             $error = $exception->getMessage();
         }
 
@@ -91,10 +90,10 @@ class AuthController extends AbstractController
         ]);
     }
 
-    public function activateProfile(Request $request, string $hash, EntityManager $em) : RedirectResponse
+    public function activateProfile(Request $request, string $hash, EntityManagerInterface $em) : RedirectResponse
     {
         try {
-            $email = urldecode(CommonHelper::decrypt($hash));
+            $email = CommonHelper::decrypt(urldecode($hash));
             $user  = $em->getRepository(User::class)->findOneByEmail($email);
             $user->setEnabled(true);
 
@@ -103,10 +102,9 @@ class AuthController extends AbstractController
         } catch (\Exception $e) {
             if ($request->hasSession()) {
                 $request->getSession()->set(self::AUTH_ERROR, 'Your profile was not activated');
-                # add flash instead
             }
         }
 
-        return $this->redirectToRoute('/');
+        return $this->redirectToRoute('index');
     }
 }

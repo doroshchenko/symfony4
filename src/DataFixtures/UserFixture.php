@@ -17,6 +17,7 @@ class UserFixture extends Fixture
         $admin->setEmail('admin@mail.com')
             ->setUsername('admin')
             ->setSalt('salt')
+            ->setEnabled(true)
             ->setPassword($this->passwordEncoder->encodePassword($admin, 'password'))
             ->addRole('ROLE_ADMIN');
 
@@ -29,6 +30,7 @@ class UserFixture extends Fixture
         $user->setEmail('user@mail.com')
             ->setUsername('user')
             ->setSalt('salt')
+            ->setEnabled(true)
             ->setPassword($this->passwordEncoder->encodePassword($user, 'password'))
             ->addRole('ROLE_USER');
 
