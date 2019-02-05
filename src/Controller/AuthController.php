@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Exception\MailerException;
 use App\Form\LoginFormType;
 use App\Service\Mailer;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -90,6 +89,12 @@ class AuthController extends AbstractController
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @param string $hash
+     * @param EntityManagerInterface $em
+     * @return RedirectResponse
+     */
     public function activateProfile(Request $request, string $hash, EntityManagerInterface $em) : RedirectResponse
     {
         try {
@@ -101,7 +106,7 @@ class AuthController extends AbstractController
             $em->flush();
         } catch (\Exception $e) {
             if ($request->hasSession()) {
-                $request->getSession()->set(self::AUTH_ERROR, 'Your profile was not activated');
+                $request->getSession()->set(self::AUTH_ERROR, $e);
             }
         }
 
